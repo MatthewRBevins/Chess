@@ -10,40 +10,89 @@ public class Game {
             {null,null,null,null,null,null,null,null},
             {null,null,null,null,null,null,null,null},
             {null,null,null,null,null,null,null,null},
-            {null,null,null,null,null,null,null,null},
+            {null,null,null,null,new Piece(1,1),null,null,null},
             {new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2)},
             {new Piece(1,2),new Piece(2,2),new Piece(3,2),new Piece(4,2),new Piece(5,2),new Piece(3,2),new Piece(2,2),new Piece(1,2)}
     };
     public Game() {
+        int currentPlayer = 1;
         while (true) {
-            System.out.print("Choice: ");
-            String in = s.next();
-            switch(in) {
-                case "move":
-                    System.out.print("current Y: ");
-                    int pos1 = s.nextInt();
-                    System.out.print("current X: ");
-                    int pos2 = s.nextInt();
-                    System.out.print("new Y: ");
-                    int npos1 = s.nextInt();
-                    System.out.print("new X: ");
-                    int npos2 = s.nextInt();
-                    if (contains(checkMoves(pos1,pos2,1),new int[]{npos1,npos2})) {
-                        Piece temp = board[pos1][pos2];
-                        board[pos1][pos2] = null;
-                        board[npos1][npos2] = temp;
-                        System.out.println("MOVED!");
+            int ri = 0;
+            System.out.print(" ");
+            for (int i = 0; i < board.length; i++) {
+                System.out.print(" | " + i);
+            }
+            System.out.print(" |");
+            System.out.println();
+            for (Piece[] r : board) {
+                System.out.print(ri+"| ");
+                ri++;
+                for (Piece p : r) {
+                    if (p == null) {
+                        System.out.print("··");
                     }
                     else {
-                        System.out.println("no");
+                        System.out.print(p.getSymbol());
                     }
+                    System.out.print(" | ");
+                }
+                System.out.println();
+            }
+            System.out.print("PLAYER " + currentPlayer + " CHOICE (type 'choices' to see options): ");
+            String in = s.next();
+            switch(in) {
+                case "choices":
+                    System.out.println("'move': move a given piece to a new space.");
+                    System.out.println("'checkMoves': shows you which places you can move a given piece.");
+                    System.out.println("'stop': stops the game.");
+                    System.out.println("'checkAttacking': shows you a list of the pieces a given piece is attacking.");
+                    System.out.println("'checkAttackers': shows you a list of what pieces are attacking a given piece.");
+                    Tools.enterToContinue();
+                    break;
+                case "move":
+                    System.out.print("CURRENT ROW: ");
+                    int row1 = s.nextInt();
+                    System.out.print("CURRENT COLUMN: ");
+                    int col1 = s.nextInt();
+                    System.out.print("NEW ROW: ");
+                    int newRow1 = s.nextInt();
+                    System.out.print("NEW COLUMN: ");
+                    int newCol1 = s.nextInt();
+                    if (Tools.intArrContains(checkMoves(row1,col1,currentPlayer),new int[]{newRow1,newCol1})) {
+                        Piece temp = board[row1][col1];
+                        board[row1][col1] = null;
+                        board[newRow1][newCol1] = temp;
+                        System.out.println("MOVED!");
+                        if (currentPlayer == 1) {
+                            currentPlayer = 2;
+                        }
+                        else {
+                            currentPlayer = 1;
+                        }
+                    }
+                    else {
+                        System.out.println("***ILLEGAL MOVE***");
+                    }
+                    Tools.enterToContinue();
                     break;
                 case "checkMoves":
-                    System.out.print("pos 1: ");
-                    int pos11 = s.nextInt();
-                    System.out.print("pos 2: ");
-                    int pos22 = s.nextInt();
-                    System.out.println(Arrays.deepToString(checkMoves(pos11,pos22,1)));
+                    System.out.print("ROW: ");
+                    int row2 = s.nextInt();
+                    System.out.print("COLUMN: ");
+                    int col2 = s.nextInt();
+                    System.out.println(Arrays.deepToString(checkMoves(row2,col2,currentPlayer)));
+                    Tools.enterToContinue();
+                    break;
+                case "checkAttacking":
+                    System.out.print("ROW: ");
+                    int row3 = s.nextInt();
+                    System.out.print("COLUMN: ");
+                    int col3 = s.nextInt();
+                    for (Piece p : attacking(row3,col3,board[row3][col3].player)) {
+                        System.out.print(Arrays.toString(p.getPos()));
+                    }
+                    break;
+                case "checkAttackers":
                     break;
                 case "stop":
                     System.exit(69);
@@ -51,6 +100,20 @@ public class Game {
                     break;
             }
         }
+    }
+    public Piece[] attacking(int y, int x, int player) {
+        Piece[] f = new Piece[10];
+        int[][] cm = checkMoves(y,x,player);
+        int index = 0;
+        for (int[] i : cm) {
+            if (board[i[0]][i[1]] != null) {
+                f[index] = board[i[0]][i[1]];
+                index++;
+            }
+        }
+        Piece[] finalArr = new Piece[index];
+        System.arraycopy(f, 0, finalArr, 0, finalArr.length);
+        return finalArr;
     }
     public boolean checkSpace(int y, int x, int player) {
         if (y < 0 || y > board.length || x < 0 || x > board.length) {
@@ -171,6 +234,9 @@ public class Game {
         if ((y < 0 || y > board.length || x < 0 || x > board.length) || (board[y][x] == null))  {
             return new int[][]{{-1}};
         }
+        if (board[y][x].player != player) {
+            return new int[][]{{-1}};
+        }
         else {
             int[][] arr = new int[32][2];
             for (int[] i : arr) {
@@ -180,6 +246,41 @@ public class Game {
             switch(board[y][x].type) {
                 //pawn
                 case 0:
+                    //TODO:EN PASSANT LATER
+                    //TODO:PROMOTION LATER
+                    //TODO:FIX NULL POINTER WHEN TOO FAR ACROSS BOARD
+                    if (board[y][x].player == 1) {
+                        if (checkSpace(y+1,x,player)) {
+                            arr[index] = new int[]{y+1,x};
+                            index++;
+                        }
+                        if (y == 1 && checkSpace(y+2,x,player)) {
+                            arr[index] = new int[]{y+2,x};
+                            index++;
+                        }
+                        for (int i = 1; i > -2; i-=2) {
+                            if (board[y+2][x+i] != null && board[y+2][x+i].player != player && checkSpace(y+2,x+i,player)) {
+                                arr[index] = new int[]{y+2,x+i};
+                                index++;
+                            }
+                        }
+                    }
+                    else {
+                        if (checkSpace(y-1,x,player)) {
+                            arr[index] = new int[]{y-1,x};
+                            index++;
+                        }
+                        if (y == 6 && checkSpace(y-2,x,player)) {
+                            arr[index] = new int[]{y-2,x};
+                            index++;
+                        }
+                        for (int i = 1; i > -2; i-=2) {
+                            if (board[y-2][x+i] != null && board[y-2][x+i].player != player && checkSpace(y-2,x+i,player)) {
+                                arr[index] = new int[]{y-2,x+i};
+                                index++;
+                            }
+                        }
+                    }
                     break;
                 //rook
                 case 1:
@@ -232,31 +333,11 @@ public class Game {
                     System.err.println("No such piece exists.");
                     break;
             }
-            return arr;
-        }
-    }
-    public boolean canTake() {
-        return false;
-    }
-    public void changePos(Piece p) {
-        
-    }
-    public int[] getPos(Piece p) {
-        for (int i = 0; i < board.length; i++) {
-            for (int j = 0; j < board.length; j++) {
-                if (board[i][j] == p) {
-                    return new int[]{i,j};
-                }
+            int[][] finalArr = new int[index][2];
+            for (int i = 0; i < finalArr.length; i++) {
+                finalArr[i] = arr[i];
             }
+            return finalArr;
         }
-        return new int[]{-1,-1};
-    }
-    public boolean contains(int[][] arr, int[] coord) {
-        for (int[] i : arr) {
-            if (Arrays.equals(i,coord)) {
-                return true;
-            }
-        }
-        return false;
     }
 }
