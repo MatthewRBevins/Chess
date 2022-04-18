@@ -1,4 +1,5 @@
-public class Piece{
+
+public class Piece extends Game {
     String[][] key = {{"pawn","♟","♙"},{"rook","♜","♖"},{"knight","♞","♘"},{"bishop","♝","♗"},{"king","♚","♔"},{"queen","♛","♕"}};
     int type;
     int player;
@@ -7,9 +8,9 @@ public class Piece{
         this.player = player;
     }
     public int[] getPos() {
-        for (int i = 0; i < Main.game.board.length; i++) {
-            for (int j = 0; j < Main.game.board[i].length; j++) {
-                if (Main.game.board[i][j] == this) {
+        for (int i = 0; i < board.length; i++) {
+            for (int j = 0; j < board[i].length; j++) {
+                if (board[i][j] == this) {
                     return new int[]{i,j};
                 }
             }

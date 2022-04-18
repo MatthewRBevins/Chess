@@ -1,9 +1,17 @@
 import java.util.Arrays;
 
 public class Tools {
-    public static boolean intArrContains(int[][] arr, int[] val) {
+    public static boolean int2DArrContains(int[][] arr, int[] val) {
         for (int[] i : arr) {
             if (Arrays.equals(val,i)) {
+                return true;
+            }
+        }
+        return false;
+    }
+    public static boolean pieceArrContains(Piece[] arr, Piece val) {
+        for (Piece p : arr) {
+            if (p == val) {
                 return true;
             }
         }

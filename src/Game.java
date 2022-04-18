@@ -1,10 +1,7 @@
 import java.util.Arrays;
 import java.util.Scanner;
-public class Game {
-    public Scanner s = new Scanner(System.in);
-    //TODO:y AND x ARE REVERSED
-    //TODO:CAPTURE PIECES
-    public Piece[][] board = {
+public class Game{
+    public static Piece[][] board = {
             {new Piece(1,1),new Piece(2,1),new Piece(3,1),new Piece(4,1),new Piece(5,1),new Piece(3,1),new Piece(2,1),new Piece(1,1)},
             {new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1)},
             {null,null,null,null,null,null,null,null},
@@ -14,7 +11,9 @@ public class Game {
             {new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2)},
             {new Piece(1,2),new Piece(2,2),new Piece(3,2),new Piece(4,2),new Piece(5,2),new Piece(3,2),new Piece(2,2),new Piece(1,2)}
     };
-    public Game() {
+    public static void main(String[] args) {
+        Piece pp = new Piece(1,1);
+        Scanner s = new Scanner(System.in);
         int currentPlayer = 1;
         while (true) {
             int ri = 0;
@@ -58,7 +57,7 @@ public class Game {
                     int newRow1 = s.nextInt();
                     System.out.print("NEW COLUMN: ");
                     int newCol1 = s.nextInt();
-                    if (Tools.intArrContains(checkMoves(row1,col1,currentPlayer),new int[]{newRow1,newCol1})) {
+                    if (Tools.int2DArrContains(checkMoves(row1,col1,currentPlayer),new int[]{newRow1,newCol1})) {
                         Piece temp = board[row1][col1];
                         board[row1][col1] = null;
                         board[newRow1][newCol1] = temp;
@@ -88,9 +87,11 @@ public class Game {
                     int row3 = s.nextInt();
                     System.out.print("COLUMN: ");
                     int col3 = s.nextInt();
+                    System.out.println(attacking(row3,col3,board[row3][col3].player).length);
                     for (Piece p : attacking(row3,col3,board[row3][col3].player)) {
                         System.out.print(Arrays.toString(p.getPos()));
                     }
+                    System.out.println();
                     break;
                 case "checkAttackers":
                     break;
@@ -101,7 +102,21 @@ public class Game {
             }
         }
     }
-    public Piece[] attacking(int y, int x, int player) {
+    //PLAYER BEING ATTACKED
+    public static boolean spaceUnderAttack(int y, int x, int player) {
+        if (board[y][x] == null || board[y][x].player != player) {
+            return false;
+        }
+        for (Piece[] pa : board) {
+            for (Piece p : pa) {
+                if (p.player != player && Tools.pieceArrContains(attacking(p.getPos()[0],p.getPos()[1],p.player),board[y][x])) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+    public static Piece[] attacking(int y, int x, int player) {
         Piece[] f = new Piece[10];
         int[][] cm = checkMoves(y,x,player);
         int index = 0;
@@ -115,13 +130,13 @@ public class Game {
         System.arraycopy(f, 0, finalArr, 0, finalArr.length);
         return finalArr;
     }
-    public boolean checkSpace(int y, int x, int player) {
+    public static boolean checkSpace(int y, int x, int player) {
         if (y < 0 || y > board.length || x < 0 || x > board.length) {
             return false;
         }
         return board[y][x] == null || (board[y][x].player != player && board[y][x].type != 5);
     }
-    public int[][] rook(int x,int y,int player,int index,int[][] arr) {
+    public static int[][] rook(int x,int y,int player,int index,int[][] arr) {
         for (int i = y+1; i < 8; i++) {
             try {
                 if (!checkSpace(i,x,player)) {
@@ -172,7 +187,7 @@ public class Game {
         }
         return arr;
     }
-    public int[][] bishop(int x,int y,int player,int index, int[][] arr) {
+    public static int[][] bishop(int x,int y,int player,int index, int[][] arr) {
         int j = x+1;
         for (int i = y+1; i < 8; i++) {
             try {
@@ -230,7 +245,7 @@ public class Game {
         }
         return arr;
     }
-    public int[][] checkMoves(int y, int x, int player) {
+    public static int[][] checkMoves(int y, int x, int player) {
         if ((y < 0 || y > board.length || x < 0 || x > board.length) || (board[y][x] == null))  {
             return new int[][]{{-1}};
         }
@@ -284,7 +299,16 @@ public class Game {
                     break;
                 //rook
                 case 1:
-                    arr = rook(x,y,player,index,arr);
+                    System.out.println("*****ROOK****");
+                    System.out.println(Arrays.deepToString(rook(x, y, player, index, arr)));
+                    arr = rook(x,y,player,index,arr).clone();
+                    for (int i = 0; i < arr.length; i++) {
+                        if (arr[i][0] == -1) {
+                            index = i;
+                            break;
+                        }
+                    }
+                    System.out.println(Arrays.deepToString(arr));
                     break;
                 //knight
                 case 2:
@@ -337,6 +361,7 @@ public class Game {
             for (int i = 0; i < finalArr.length; i++) {
                 finalArr[i] = arr[i];
             }
+            System.out.println(Arrays.deepToString(finalArr));
             return finalArr;
         }
     }
