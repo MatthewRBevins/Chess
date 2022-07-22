@@ -7,12 +7,11 @@ public class Game{
             {null,null,null,null,null,null,null,null},
             {null,null,null,null,null,null,null,null},
             {null,null,null,null,null,null,null,null},
-            {null,null,null,null,new Piece(1,1),null,null,null},
+            {null,null,null,null,null,null,null,null},
             {new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2)},
             {new Piece(1,2),new Piece(2,2),new Piece(3,2),new Piece(4,2),new Piece(5,2),new Piece(3,2),new Piece(2,2),new Piece(1,2)}
     };
     public static void main(String[] args) {
-        Piece pp = new Piece(1,1);
         Scanner s = new Scanner(System.in);
         int currentPlayer = 1;
         while (true) {
@@ -38,6 +37,16 @@ public class Game{
                 System.out.println();
             }
             System.out.print("PLAYER " + currentPlayer + " CHOICE (type 'choices' to see options): ");
+
+
+            /*
+             * COMPUTER PLAYER
+             */
+
+
+
+
+
             String in = s.next();
             switch(in) {
                 case "choices":
@@ -273,12 +282,6 @@ public class Game{
                             arr[index] = new int[]{y+2,x};
                             index++;
                         }
-                        for (int i = 1; i > -2; i-=2) {
-                            if (board[y+2][x+i] != null && board[y+2][x+i].player != player && checkSpace(y+2,x+i,player)) {
-                                arr[index] = new int[]{y+2,x+i};
-                                index++;
-                            }
-                        }
                     }
                     else {
                         if (checkSpace(y-1,x,player)) {
@@ -288,12 +291,6 @@ public class Game{
                         if (y == 6 && checkSpace(y-2,x,player)) {
                             arr[index] = new int[]{y-2,x};
                             index++;
-                        }
-                        for (int i = 1; i > -2; i-=2) {
-                            if (board[y-2][x+i] != null && board[y-2][x+i].player != player && checkSpace(y-2,x+i,player)) {
-                                arr[index] = new int[]{y-2,x+i};
-                                index++;
-                            }
                         }
                     }
                     break;
