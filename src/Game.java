@@ -1,6 +1,7 @@
 import java.util.Arrays;
 import java.util.Scanner;
 public class Game{
+    //Set up board with correct piece types
     public static Piece[][] board = {
             {new Piece(1,1),new Piece(2,1),new Piece(3,1),new Piece(4,1),new Piece(5,1),new Piece(3,1),new Piece(2,1),new Piece(1,1)},
             {new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1),new Piece(0,1)},
@@ -13,22 +14,31 @@ public class Game{
     };
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
+        //Set current player to player one
         int currentPlayer = 1;
+        //While the game is still running
         while (true) {
+            //Index for row numbers
             int ri = 0;
+            //Print out column numbers for board
             System.out.print(" ");
             for (int i = 0; i < board.length; i++) {
                 System.out.print(" | " + i);
             }
             System.out.print(" |");
             System.out.println();
+            //Loop through all board rows
             for (Piece[] r : board) {
+                //Print row numbers
                 System.out.print(ri+"| ");
                 ri++;
+                //Loop through pieces in current row
                 for (Piece p : r) {
+                    //Print two dots to represent no piece
                     if (p == null) {
                         System.out.print("··");
                     }
+                    //Print symbol of piece
                     else {
                         System.out.print(p.getSymbol());
                     }
@@ -36,6 +46,7 @@ public class Game{
                 }
                 System.out.println();
             }
+            //Ask player for choice
             System.out.print("PLAYER " + currentPlayer + " CHOICE (type 'choices' to see options): ");
 
 
@@ -49,6 +60,7 @@ public class Game{
 
             String in = s.next();
             switch(in) {
+                //Print all choices for player
                 case "choices":
                     System.out.println("'move': move a given piece to a new space.");
                     System.out.println("'checkMoves': shows you which places you can move a given piece.");
@@ -58,6 +70,7 @@ public class Game{
                     Tools.enterToContinue();
                     break;
                 case "move":
+                    //Ask player for position to move to
                     System.out.print("CURRENT ROW: ");
                     int row1 = s.nextInt();
                     System.out.print("CURRENT COLUMN: ");
@@ -66,6 +79,7 @@ public class Game{
                     int newRow1 = s.nextInt();
                     System.out.print("NEW COLUMN: ");
                     int newCol1 = s.nextInt();
+                    //If the possible moves for the current piece includes the new position given
                     if (Tools.int2DArrContains(checkMoves(row1,col1,currentPlayer),new int[]{newRow1,newCol1})) {
                         Piece temp = board[row1][col1];
                         board[row1][col1] = null;
