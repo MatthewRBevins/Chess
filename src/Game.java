@@ -178,7 +178,7 @@ public class Game{
         return finalArr;
     }
     public static boolean checkSpace(int y, int x, int player) {
-        //Check is a space is valid
+        //CHECKS WHETHER PIECE IS OUT OF BOUNDS, EMPTY, OR CONTAINS AN ATTACKER.
         if (y < 0 || y >= board.length || x < 0 || x >= board.length) {
             return false;
         }
@@ -313,22 +313,51 @@ public class Game{
                     //TODO:PROMOTION LATER
                     //TODO:FIX NULL POINTER WHEN TOO FAR ACROSS BOARD
                     if (board[y][x].player == 1) {
-                        if (checkSpace(y+1,x,player)) {
+                        //NORMAL MOVE
+                        if (checkSpace(y+1,x,player) && board[y+1][x] == null) {
                             arr[index] = new int[]{y+1,x};
                             index++;
                         }
-                        if (y == 1 && checkSpace(y+2,x,player)) {
+                        //TWO SQUARE MOVE
+                        if (y == 1 && checkSpace(y+2,x,player) && board[y+2][x] == null) {
                             arr[index] = new int[]{y+2,x};
+                            index++;
+                        }
+                        //ATTACKING RIGHT
+                        if (checkSpace(y+1,x+1,player) && (board[y+1][x+1] != null && board[y+1][x+1].player != player)) {
+                            arr[index] = new int[]{y+1,x+1};
+                            index++;
+                        }
+                        //ATTACKING LEFT
+                        if (checkSpace(y+1,x-1,player) && (board[y+1][x-1] != null && board[y+1][x-1].player != player)) {
+                            arr[index] = new int[]{y+1,x-1};
                             index++;
                         }
                     }
                     else {
-                        if (checkSpace(y-1,x,player)) {
+                        //NORMAL MOVE
+                        if (checkSpace(y-1,x,player) && board[y-1][x] == null) {
                             arr[index] = new int[]{y-1,x};
                             index++;
                         }
-                        if (y == 6 && checkSpace(y-2,x,player)) {
+                        //TWO SQUARE MOVE
+                        if (y == 6 && checkSpace(y-2,x,player) && board[y-2][x] == null) {
                             arr[index] = new int[]{y-2,x};
+                            index++;
+                        }
+                        //ATTACKING RIGHT
+                        System.out.println(checkSpace(y-1,x+1,player));
+                        System.out.println(board[y-1][x+1] != null);
+                        if (board[y-1][x+1] != null) {
+                            System.out.println(board[y - 1][x + 1].player != player);
+                        }
+                        if (checkSpace(y-1,x+1,player) && (board[y-1][x+1] != null && board[y-1][x+1].player != player)) {
+                            arr[index] = new int[]{y-1,x+1};
+                            index++;
+                        }
+                        //ATTACKING LEFT
+                        if (checkSpace(y-1,x-1,player) && (board[y-1][x-1] != null && board[y-1][x-1].player != player)) {
+                            arr[index] = new int[]{y-1,x-1};
                             index++;
                         }
                     }
