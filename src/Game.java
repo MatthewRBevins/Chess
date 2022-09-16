@@ -1,4 +1,5 @@
 import java.util.Arrays;
+import java.util.Objects;
 import java.util.Scanner;
 public class Game{
     //Set up board with correct piece types
@@ -12,6 +13,7 @@ public class Game{
             {new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2),new Piece(0,2)},
             {new Piece(1,2),new Piece(2,2),new Piece(3,2),new Piece(4,2),new Piece(5,2),new Piece(3,2),new Piece(2,2),new Piece(1,2)}
     };
+    
     public static void main(String[] args) {
         Scanner s = new Scanner(System.in);
         //Set current player to player one
@@ -75,7 +77,7 @@ public class Game{
                         System.out.print("NEW COLUMN: ");
                         int newCol1 = s.nextInt();
                         //If the possible moves for the current piece includes the new position given
-                        if (Tools.int2DArrContains(checkMoves(row1, col1, currentPlayer), new int[]{newRow1, newCol1})) {
+                        if (Tools.int2DArrContains(checkMoves(row1, col1, currentPlayer, true), new int[]{newRow1, newCol1})) {
                             //Store the piece being moved
                             Piece temp = board[row1][col1];
                             //Remove the piece from its original position
@@ -101,7 +103,7 @@ public class Game{
                         int row2 = s.nextInt();
                         System.out.print("COLUMN: ");
                         int col2 = s.nextInt();
-                        System.out.println(Arrays.deepToString(checkMoves(row2, col2, currentPlayer)));
+                        System.out.println(Arrays.deepToString(checkMoves(row2, col2, currentPlayer, true)));
                         Tools.enterToContinue();
                         break;
                     case "checkAttacking":
@@ -154,14 +156,50 @@ public class Game{
         return null;
     }
 
-    //PLAYER BEING ATTACKED
-    public static boolean spaceUnderAttack(int y, int x, int player) {
+    public static boolean checkGameOver(int player) {
+        for (Piece[] p : board) {
+            for (Piece pp : p) {
+                if (pp != null && pp.player == player) {
+                    
+                }
+            }
+        }
+        return true;
+    }
 
+    /**
+     * Checks whether the opponent is attacking a given square.
+     * @param y Row of piece.
+     * @param x Column of piece.
+     * @param player Number representing which player controls the given piece.
+     * @return Whether the given square is under attack.
+     */
+    public static boolean spaceUnderAttack(int y, int x, int player) {
+        for (Piece[] p : board) {
+            for (Piece pp : p) {
+                if (pp != null && pp.player != player) {
+                    int[][] cm = checkMoves(pp.getPos()[0], pp.getPos()[1], pp.player, false);
+                    for (int[] i : cm) {
+                        if (Arrays.equals(i, new int[]{y,x})) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
         return false;
     }
+
+    /**
+     * Finds all pieces a given piece is attacking.
+     * @param y Row of piece.
+     * @param x Column of piece.
+     * @param player Number representing which player controls the given piece.
+     * @return A Piece array of all pieces the given piece is attacking.
+     */
     public static Piece[] attacking(int y, int x, int player) {
         Piece[] f = new Piece[10];
-        int[][] cm = checkMoves(y,x,player);
+        int[][] cm = checkMoves(y,x,player, true);
         int index = 0;
         //Loop through all possible moves by a piece and see if it includes an opponent's piece
         for (int[] i : cm) {
@@ -177,13 +215,30 @@ public class Game{
         System.arraycopy(f, 0, finalArr, 0, finalArr.length);
         return finalArr;
     }
+
+    /**
+     * Checks whether a space is out of bounds, empty, or contains an attacker.
+     * @param y Row of piece.
+     * @param x Column of piece.
+     * @param player Number representing which player controls the given piece.
+     * @return Whether a given space is a valid move.
+     */
     public static boolean checkSpace(int y, int x, int player) {
-        //CHECKS WHETHER PIECE IS OUT OF BOUNDS, EMPTY, OR CONTAINS AN ATTACKER.
         if (y < 0 || y >= board.length || x < 0 || x >= board.length) {
             return false;
         }
         return board[y][x] == null || (board[y][x].player != player && board[y][x].type != 5);
     }
+
+    /**
+     * Returns all possible moves for a given rook.
+     * @param x Column of rook.
+     * @param y Row of rook.
+     * @param player Number representing which player controls the given rook.
+     * @param index Current index from parent checkMoves method.
+     * @param arr Current arr from parent checkMoves method.
+     * @return 2D int array that contains a list of positions of possible moves for the given rook.
+     */
     public static int[][] rook(int x,int y,int player,int index,int[][] arr) {
         for (int i = y+1; i < 8; i++) {
             try {
@@ -235,6 +290,16 @@ public class Game{
         }
         return arr;
     }
+
+    /**
+     * Returns all possible moves for a given bishop.
+     * @param x Column of bishop.
+     * @param y Row of bishop.
+     * @param player Number representing which player controls the given bishop.
+     * @param index Current index from parent checkMoves method.
+     * @param arr Current arr from parent checkMoves method.
+     * @return 2D int array that contains a list of positions of possible moves for the given bishop.
+     */
     public static int[][] bishop(int x,int y,int player,int index, int[][] arr) {
         int j = x+1;
         for (int i = y+1; i < 8; i++) {
@@ -293,7 +358,15 @@ public class Game{
         }
         return arr;
     }
-    public static int[][] checkMoves(int y, int x, int player) {
+
+    /**
+     * Finds all possible moves for a given piece in the chess game.
+     * @param y Row of piece.
+     * @param x Column of piece.
+     * @param player Number representing which player controls the given piece.
+     * @return 2D int array that contains a list of positions of possible moves for the given piece.
+     */
+    public static int[][] checkMoves(int y, int x, int player, boolean actualMove) {
         if ((y < 0 || y > board.length || x < 0 || x > board.length) || (board[y][x] == null))  {
             return new int[][]{{-1}};
         }
@@ -324,12 +397,12 @@ public class Game{
                             index++;
                         }
                         //ATTACKING RIGHT
-                        if (checkSpace(y+1,x+1,player) && (board[y+1][x+1] != null && board[y+1][x+1].player != player)) {
+                        if (checkSpace(y+1,x+1,player) && ((board[y+1][x+1] != null && board[y+1][x+1].player != player) || !actualMove)) {
                             arr[index] = new int[]{y+1,x+1};
                             index++;
                         }
                         //ATTACKING LEFT
-                        if (checkSpace(y+1,x-1,player) && (board[y+1][x-1] != null && board[y+1][x-1].player != player)) {
+                        if (checkSpace(y+1,x-1,player) && ((board[y+1][x-1] != null && board[y+1][x-1].player != player) || !actualMove)) {
                             arr[index] = new int[]{y+1,x-1};
                             index++;
                         }
@@ -346,17 +419,12 @@ public class Game{
                             index++;
                         }
                         //ATTACKING RIGHT
-                        System.out.println(checkSpace(y-1,x+1,player));
-                        System.out.println(board[y-1][x+1] != null);
-                        if (board[y-1][x+1] != null) {
-                            System.out.println(board[y - 1][x + 1].player != player);
-                        }
-                        if (checkSpace(y-1,x+1,player) && (board[y-1][x+1] != null && board[y-1][x+1].player != player)) {
+                        if (checkSpace(y-1,x+1,player) && ((board[y-1][x+1] != null && board[y-1][x+1].player != player) || !actualMove)) {
                             arr[index] = new int[]{y-1,x+1};
                             index++;
                         }
                         //ATTACKING LEFT
-                        if (checkSpace(y-1,x-1,player) && (board[y-1][x-1] != null && board[y-1][x-1].player != player)) {
+                        if (checkSpace(y-1,x-1,player) && ((board[y-1][x-1] != null && board[y-1][x-1].player != player) || !actualMove)) {
                             arr[index] = new int[]{y-1,x-1};
                             index++;
                         }
@@ -364,8 +432,6 @@ public class Game{
                     break;
                 //rook
                 case 1:
-                    //System.out.println("*****ROOK****");
-                    //System.out.println(Arrays.deepToString(rook(x, y, player, index, arr)));
                     arr = rook(x,y,player,index,arr).clone();
                     for (int i = 0; i < arr.length; i++) {
                         if (arr[i][0] == -1) {
@@ -373,7 +439,6 @@ public class Game{
                             break;
                         }
                     }
-                    //System.out.println(Arrays.deepToString(arr));
                     break;
                 //knight
                 case 2:
@@ -426,7 +491,6 @@ public class Game{
             for (int i = 0; i < finalArr.length; i++) {
                 finalArr[i] = arr[i];
             }
-            //System.out.println(Arrays.deepToString(finalArr));
             return finalArr;
         }
     }
